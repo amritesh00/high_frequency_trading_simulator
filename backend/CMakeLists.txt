@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.10)
+project(HFTSimulator)
+set(CMAKE_CXX_STANDARD 17)
+add_executable(hft main.cpp orderbook.cpp strategy.cpp server.cpp)
+include_directories(.)
+include_directories(/usr/include/)
+target_link_libraries(hft pthread)

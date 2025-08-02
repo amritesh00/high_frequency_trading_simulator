@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HFT Order Book</title>
+  <style>
+    body { font-family: Arial; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border: 1px solid #ccc; padding: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Live Order Book</h1>
+  <div id="orderbook">Loading...</div>
+  <script>
+    async function loadData() {
+      const res = await fetch("http://localhost:8080/orderbook");
+      const data = await res.json();
+      let html = `<table><tr><th>Side</th><th>Price</th><th>Qty</th></tr>`;
+      for (let side in data) {
+        data[side].forEach(order => {
+          html += `<tr><td>${side}</td><td>${order.price}</td><td>${order.qty}</td></tr>`;
+        });
+      }
+      html += '</table>';
+      document.getElementById("orderbook").innerHTML = html;
+    }
+    setInterval(loadData, 1000);
+  </script>
+  <footer style="margin-top: 30px; font-size: small;">&copy; Amritesh Bhukhmaria 2025</footer>
+</body>
+</html>
