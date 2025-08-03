@@ -1,2 +1,7 @@
-docker build -t hft-sim .
-docker run -p 8080:8080 hft-sim
+# Dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+ENV FLASK_ENV=production
+CMD ["python", "app/main.py"]

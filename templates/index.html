@@ -1,0 +1,41 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Order Book</title>
+  <style>
+    body { font-family: Arial; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    footer { margin-top: 30px; font-size: small; }
+  </style>
+</head>
+<body>
+  <h1>Live Order Book</h1>
+  <div id="orderbook">Loading...</div>
+
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    socket.on("update", loadData);
+
+    async function loadData() {
+      const res = await fetch("/orderbook");
+      const data = await res.json();
+      let html = `<table><tr><th>Side</th><th>Price</th><th>Qty</th></tr>`;
+      for (let side in data) {
+        data[side].forEach(order => {
+          html += `<tr><td>${side}</td><td>${order.price}</td><td>${order.quantity}</td></tr>`;
+        });
+      }
+      html += "</table>";
+      document.getElementById("orderbook").innerHTML = html;
+    }
+
+    setInterval(loadData, 2000);
+    loadData();
+  </script>
+
+  <footer>&copy; Amritesh Bhukhmaria 2025</footer>
+</body>
+</html>
