@@ -7,14 +7,19 @@ import os
 import redis
 from urllib.parse import urlparse
 
-# Load .env variables
+# Load environment variables
 load_dotenv()
 
 # Set up Flask-SocketIO
 socketio = SocketIO(cors_allowed_origins="*")
 
-# Set up Redis using REDIS_URL
-redis_url = urlparse(os.getenv("REDIS_URL", "redis://localhost:6379"))
+# ⛔️ Fail early if REDIS_URL is not set
+redis_url_str = os.getenv("REDIS_URL")
+if not redis_url_str:
+    raise RuntimeError("REDIS_URL is not set in environment variables.")
+
+# ✅ Parse the Redis URL (works with Upstash, Render secrets, etc.)
+redis_url = urlparse(redis_url_str)
 rdb = redis.Redis(
     host=redis_url.hostname,
     port=redis_url.port,
@@ -23,17 +28,21 @@ rdb = redis.Redis(
 )
 
 def create_app():
-    # ✅ Force Flask to use the correct templates directory (at root)
+    # ✅ Ensure Flask uses correct template folder (root-level /templates)
     template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "templates"))
     app = Flask(__name__, template_folder=template_dir)
 
+    # Secret key (fallback only for local dev)
     app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "devkey")
 
+    # Register routes
     from .routes import main_bp
     app.register_blueprint(main_bp)
 
+    # Initialize SocketIO
     socketio.init_app(app)
 
+    # Start trading strategy
     from .strategy import start_strategy
     start_strategy()
 
