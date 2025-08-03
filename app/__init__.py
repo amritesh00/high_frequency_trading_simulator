@@ -18,4 +18,8 @@ def create_app():
     app.register_blueprint(main_bp)
     
     socketio.init_app(app)
+    
+    from .strategy import start_strategy
+    start_strategy()
+
     return app

@@ -6,9 +6,6 @@ from .utils import validate_key
 
 main_bp = Blueprint("main", __name__)
 
-@main_bp.before_app_first_request
-def launch_strategy():
-    start_strategy()
 
 @main_bp.route("/orderbook")
 def orderbook():
