@@ -23,7 +23,10 @@ rdb = redis.Redis(
 )
 
 def create_app():
-    app = Flask(__name__)
+    # ✅ Force Flask to use the correct templates directory (at root)
+    template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "templates"))
+    app = Flask(__name__, template_folder=template_dir)
+
     app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "devkey")
 
     from .routes import main_bp
