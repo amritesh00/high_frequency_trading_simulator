@@ -4,8 +4,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 from dotenv import load_dotenv
 import os
-import redis
-from urllib.parse import urlparse
+
 
 # Load environment variables
 load_dotenv()
@@ -19,13 +18,6 @@ if not redis_url_str:
     raise RuntimeError("REDIS_URL is not set in environment variables.")
 
 # ✅ Parse the Redis URL (works with Upstash, Render secrets, etc.)
-redis_url = urlparse(redis_url_str)
-rdb = redis.Redis(
-    host=redis_url.hostname,
-    port=redis_url.port,
-    password=redis_url.password,
-    decode_responses=True
-)
 
 def create_app():
     # ✅ Ensure Flask uses correct template folder (root-level /templates)
