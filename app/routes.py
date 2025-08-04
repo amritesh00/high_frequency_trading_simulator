@@ -1,7 +1,6 @@
-quest.form["type"]
-    price = float(request.form["price"])
-    qty = int(request.form["qty"])
-    add_order(order_type, from flask import Blueprint, request, render_template, jsonify, redirect, url_for
+# app/routes.py
+
+from flask import Blueprint, request, render_template, jsonify, redirect, url_for
 from .orderbook import get_orderbook, add_order, match_orders
 from .strategy import run_strategy
 from app import socketio
@@ -22,8 +21,10 @@ def get_book():
 
 @main_bp.route("/order", methods=["POST"])
 def submit_order():
-    order_type = reprice, qty)
+    order_type = request.form["type"]
+    price = float(request.form["price"])
+    qty = int(request.form["qty"])
+    add_order(order_type, price, qty)
     match_orders()
     socketio.emit("orderbook_update")
     return redirect(url_for("main.index"))
-
