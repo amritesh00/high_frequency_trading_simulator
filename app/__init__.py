@@ -8,6 +8,8 @@ import os
 socketio = SocketIO(cors_allowed_origins="*")
 
 def create_app():
+    template_dir = os.path.abspath("templates")  # 👈 force Flask to look in /templates
+    app = Flask(__name__, template_folder=template_dir)
     load_dotenv()
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "default-secret")
