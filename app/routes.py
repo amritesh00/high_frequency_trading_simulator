@@ -1,21 +1,29 @@
-from flask import Blueprint, jsonify, render_template
-from .redis_client import rdb
-from .orderbook import Order
-from .strategy import start_strategy
+quest.form["type"]
+    price = float(request.form["price"])
+    qty = int(request.form["qty"])
+    add_order(order_type, from flask import Blueprint, request, render_template, jsonify, redirect, url_for
+from .orderbook import get_orderbook, add_order, match_orders
+from .strategy import run_strategy
+from app import socketio
 
 main_bp = Blueprint("main", __name__)
 
-@main_bp.route("/orderbook")
-def get_orderbook():
-    buys = rdb.lrange("buy", 0, -1)
-    sells = rdb.lrange("sell", 0, -1)
+@main_bp.before_app_first_request
+def start_background():
+    run_strategy()
 
-    buy_orders = [Order.from_json(o).__dict__ for o in buys]
-    sell_orders = [Order.from_json(o).__dict__ for o in sells]
-
-    return jsonify({"buy": buy_orders, "sell": sell_orders})
-
-# ✅ Serve the frontend from /
 @main_bp.route("/")
 def index():
     return render_template("index.html")
+
+@main_bp.route("/orderbook")
+def get_book():
+    return jsonify(get_orderbook())
+
+@main_bp.route("/order", methods=["POST"])
+def submit_order():
+    order_type = reprice, qty)
+    match_orders()
+    socketio.emit("orderbook_update")
+    return redirect(url_for("main.index"))
+
