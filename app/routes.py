@@ -7,10 +7,6 @@ from app import socketio
 
 main_bp = Blueprint("main", __name__)
 
-@main_bp.before_app_first_request
-def start_background():
-    run_strategy()
-
 @main_bp.route("/")
 def index():
     return render_template("index.html")

@@ -1,3 +1,5 @@
+# app/__init__.py
+
 from flask import Flask
 from flask_socketio import SocketIO
 from dotenv import load_dotenv
@@ -12,6 +14,9 @@ def create_app():
 
     from .routes import main_bp
     app.register_blueprint(main_bp)
+
+    from .strategy import run_strategy
+    run_strategy()  # ✅ Start background strategy thread here
 
     socketio.init_app(app)
     return app
