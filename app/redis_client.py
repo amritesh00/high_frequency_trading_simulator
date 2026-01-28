@@ -8,8 +8,6 @@ rdb = redis.Redis(
     host=redis_url.hostname,
     port=redis_url.port,
     password=redis_url.password,
-    ssl=True,
-    ssl_cert_reqs=None,
     decode_responses=True
 )
 
