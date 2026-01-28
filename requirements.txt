@@ -1,5 +1,5 @@
 flask
 flask-socketio
-eventlet
-redis
 python-dotenv
+redis
+eventlet

@@ -1,54 +1,33 @@
-def add_order(order_type, price, qty):
-    from .redis_client import rdb
-    rdb.rpush(order_type, f"{price}:{qty}")
+from .redis_client import rdb
+import time
+
+def add_order(side, price, qty):
+    order_id = f"{side}:{price}:{qty}:{time.time()}"
+    rdb.zadd(f"orderbook:{side}", {order_id: price})
 
 def get_orderbook():
-    from .redis_client import rdb
-    orderbook = {"buy": [], "sell": []}
+    book = {"buy": [], "sell": []}
+
     for side in ["buy", "sell"]:
-        orders = rdb.lrange(side, 0, -1)
-        for entry in orders:
-            price, qty = entry.split(":")
-            orderbook[side].append({"price": float(price), "qty": int(qty)})
-    return orderbook
+        orders = rdb.zrange(f"orderbook:{side}", 0, -1, withscores=True)
+        for order_id, price in orders:
+            _, _, qty, _ = order_id.split(":")
+            book[side].append({
+                "price": price,
+                "qty": int(float(qty))
+            })
+    return book
 
 def match_orders():
-    from .redis_client import rdb
-    buys = rdb.lrange("buy", 0, -1)
-    sells = rdb.lrange("sell", 0, -1)
-    matched = []
-    new_buys = []
-    new_sells = []
+    buy_orders = rdb.zrevrange("orderbook:buy", 0, 0, withscores=True)
+    sell_orders = rdb.zrange("orderbook:sell", 0, 0, withscores=True)
 
-    buy_index, sell_index = 0, 0
-    while buy_index < len(buys) and sell_index < len(sells):
-        buy_price, buy_qty = map(float, buys[buy_index].split(":"))
-        sell_price, sell_qty = map(float, sells[sell_index].split(":"))
+    if not buy_orders or not sell_orders:
+        return
 
-        if buy_price >= sell_price:
-            traded_qty = int(min(buy_qty, sell_qty))
-            matched.append((buy_price, sell_price, traded_qty))
-            buy_qty -= traded_qty
-            sell_qty -= traded_qty
+    buy_id, buy_price = buy_orders[0]
+    sell_id, sell_price = sell_orders[0]
 
-            if buy_qty > 0:
-                new_buys.append(f"{buy_price}:{buy_qty}")
-            buy_index += 1 if buy_qty <= 0 else 0
-
-            if sell_qty > 0:
-                new_sells.append(f"{sell_price}:{sell_qty}")
-            sell_index += 1 if sell_qty <= 0 else 0
-        else:
-            new_buys.extend(buys[buy_index:])
-            new_sells.extend(sells[sell_index:])
-            break
-
-    rdb.delete("buy")
-    rdb.delete("sell")
-    for order in new_buys:
-        rdb.rpush("buy", order)
-    for order in new_sells:
-        rdb.rpush("sell", order)
-
-    return matched
-
+    if buy_price >= sell_price:
+        rdb.zrem("orderbook:buy", buy_id)
+        rdb.zrem("orderbook:sell", sell_id)
