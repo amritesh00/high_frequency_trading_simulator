@@ -4,10 +4,13 @@ from app.orderbook import add_order, match, snapshot
 from app.strategy import start
 import os
 
+# Create the app
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Start the background HFT strategy
+# Explicitly set async_mode to 'gevent'
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
+
+# Start the background HFT strategy - pass socketio so it can emit
 start(socketio)
 
 @app.route("/")
@@ -24,6 +27,6 @@ def handle_manual_order(data):
     })
 
 if __name__ == "__main__":
-    # For Render, we use eventlet to handle the WebSocket connections
     port = int(os.environ.get("PORT", 10000))
-    socketio.run(app, host="0.0.0.0", port=port, log_output=True)
+    # Use standard event loop for local dev, Gunicorn handles production
+    socketio.run(app, host="0.0.0.0", port=port)    
