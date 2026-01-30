@@ -1,34 +1,36 @@
-const socket = io();
-
-socket.on("orderbook_update", data => {
-    update("buy", data.buy);
-    update("sell", data.sell);
-});
-
-function update(side, orders) {
-    const ul = document.getElementById(side);
-    ul.innerHTML = "";
-    orders.forEach(o => {
-        ul.innerHTML += `<li>${o.price} x ${o.qty}</li>`;
+async function loadOrderbook() {
+    const res = await fetch("/orderbook");
+    const data = await res.json();
+  
+    const tbody = document.getElementById("orders");
+    tbody.innerHTML = "";
+  
+    data.buy.forEach(o => {
+      tbody.innerHTML += `
+        <tr>
+          <td class="buy">BUY</td>
+          <td>${o.price}</td>
+          <td>${o.qty}</td>
+        </tr>`;
     });
-}
-
-function start() {
-    fetch("/start_strategy");
-}
-
-function stop() {
-    fetch("/stop_strategy");
-}
-
-function placeOrder() {
-    fetch("/order", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            side: document.getElementById("side").value,
-            price: document.getElementById("price").value,
-            qty: document.getElementById("qty").value
-        })
+  
+    data.sell.forEach(o => {
+      tbody.innerHTML += `
+        <tr>
+          <td class="sell">SELL</td>
+          <td>${o.price}</td>
+          <td>${o.qty}</td>
+        </tr>`;
     });
-}
+  }
+  
+  async function startStrategy() {
+    await fetch("/start_strategy");
+  }
+  
+  async function stopStrategy() {
+    await fetch("/stop_strategy");
+  }
+  
+  setInterval(loadOrderbook, 1000);
+  

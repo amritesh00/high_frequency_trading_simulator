@@ -4,8 +4,10 @@ orderbook = {
 }
 
 def add_order(side, price, qty):
-    order = {"price": price, "qty": qty}
-    orderbook[side].append(order)
+    orderbook[side].append({
+        "price": round(float(price), 2),
+        "qty": int(qty)
+    })
 
-    orderbook["buy"] = sorted(orderbook["buy"], key=lambda x: -x["price"])
-    orderbook["sell"] = sorted(orderbook["sell"], key=lambda x: x["price"])
+def get_orderbook():
+    return orderbook

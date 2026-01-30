@@ -1,42 +1,27 @@
-import eventlet
-eventlet.monkey_patch()
-
-from flask import Flask, jsonify, request, render_template
-from flask_socketio import SocketIO
-from app.orderbook import orderbook, add_order
+from flask import Flask, render_template, jsonify, request
+from app.orderbook import get_orderbook, add_order
 from app.strategy import start_strategy, stop_strategy
+import os
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "hft-secret"
-
-socketio = SocketIO(app, cors_allowed_origins="*")
 
 @app.route("/")
 def home():
-    return jsonify({
-        "status": "HFT Simulator is LIVE 🚀",
-        "message": "Backend running successfully on Render",
-        "routes": ["/orderbook", "/order (POST)", "/start_strategy", "/stop_strategy"]
-    })
-
-@app.route("/ui")
-def ui():
     return render_template("index.html")
 
 @app.route("/orderbook")
-def get_orderbook():
-    return jsonify(orderbook)
+def orderbook():
+    return jsonify(get_orderbook())
 
 @app.route("/order", methods=["POST"])
 def place_order():
     data = request.json
     add_order(data["side"], data["price"], data["qty"])
-    socketio.emit("orderbook_update", orderbook)
     return jsonify({"status": "order placed"})
 
 @app.route("/start_strategy")
 def start():
-    start_strategy(socketio)
+    start_strategy()
     return jsonify({"status": "Auto strategy started"})
 
 @app.route("/stop_strategy")
@@ -44,5 +29,13 @@ def stop():
     stop_strategy()
     return jsonify({"status": "Auto strategy stopped"})
 
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "HFT Simulator is LIVE 🚀",
+        "routes": ["/", "/orderbook", "/start_strategy", "/stop_strategy"]
+    })
+
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)

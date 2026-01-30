@@ -1,41 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>HFT Simulator</title>
-    <link rel="stylesheet" href="/static/styles.css">
+  <meta charset="UTF-8">
+  <title>HFT Simulator</title>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 
-<h1>🚀 High Frequency Trading Simulator</h1>
+<h1>📈 High-Frequency Trading Simulator</h1>
 
 <div class="controls">
-    <button onclick="start()">Start Strategy</button>
-    <button onclick="stop()">Stop Strategy</button>
+  <button onclick="startStrategy()">▶ Start Strategy</button>
+  <button onclick="stopStrategy()">⏹ Stop Strategy</button>
 </div>
 
-<div class="order-form">
-    <h3>Manual Order</h3>
-    <select id="side">
-        <option value="buy">Buy</option>
-        <option value="sell">Sell</option>
-    </select>
-    <input id="price" placeholder="Price">
-    <input id="qty" placeholder="Quantity">
-    <button onclick="placeOrder()">Place Order</button>
-</div>
+<h2>Live Orderbook</h2>
 
-<div class="orderbook">
-    <div>
-        <h3>BUY</h3>
-        <ul id="buy"></ul>
-    </div>
-    <div>
-        <h3>SELL</h3>
-        <ul id="sell"></ul>
-    </div>
-</div>
+<table>
+  <thead>
+    <tr>
+      <th>Side</th>
+      <th>Price</th>
+      <th>Quantity</th>
+    </tr>
+  </thead>
+  <tbody id="orders"></tbody>
+</table>
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script src="/static/script.js"></script>
 </body>
 </html>
