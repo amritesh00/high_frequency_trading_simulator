@@ -1,16 +1,9 @@
 from flask import Flask
-from dotenv import load_dotenv
-import os
-from .socket import socketio
+from flask_socketio import SocketIO
+
+socketio = SocketIO(cors_allowed_origins="*")
 
 def create_app():
-    load_dotenv()
-
-    app = Flask(__name__, template_folder="../templates")
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-
-    from .routes import main_bp
-    app.register_blueprint(main_bp)
-
+    app = Flask(__name__)
     socketio.init_app(app)
     return app

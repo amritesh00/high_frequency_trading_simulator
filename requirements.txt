@@ -3,3 +3,4 @@ flask-socketio
 python-dotenv
 redis
 eventlet
+flask-socketio
