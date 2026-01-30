@@ -1,44 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HFT Simulator</title>
-  <link rel="stylesheet" href="/static/styles.css">
+    <title>HFT Simulator</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <h1>Live Order Book</h1>
-  <div id="orderbook">Loading...</div>
 
-  <h2>Place Manual Order</h2>
-  <form action="/order" method="POST">
-    <select name="type">
-      <option value="buy">Buy</option>
-      <option value="sell">Sell</option>
+<h1>🚀 High Frequency Trading Simulator</h1>
+
+<div class="controls">
+    <button onclick="start()">Start Strategy</button>
+    <button onclick="stop()">Stop Strategy</button>
+</div>
+
+<div class="order-form">
+    <h3>Manual Order</h3>
+    <select id="side">
+        <option value="buy">Buy</option>
+        <option value="sell">Sell</option>
     </select>
-    <input type="number" step="0.01" name="price" placeholder="Price" required>
-    <input type="number" name="qty" placeholder="Quantity" required>
-    <button type="submit">Submit</button>
-  </form>
+    <input id="price" placeholder="Price">
+    <input id="qty" placeholder="Quantity">
+    <button onclick="placeOrder()">Place Order</button>
+</div>
 
-  <footer>&copy; Amritesh Bhukhmaria 2025</footer>
-  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-  <script>
-    const socket = io();
-    socket.on("orderbook_update", loadOrderbook);
+<div class="orderbook">
+    <div>
+        <h3>BUY</h3>
+        <ul id="buy"></ul>
+    </div>
+    <div>
+        <h3>SELL</h3>
+        <ul id="sell"></ul>
+    </div>
+</div>
 
-    async function loadOrderbook() {
-      const res = await fetch("/orderbook");
-      const data = await res.json();
-      let html = `<table><tr><th>Side</th><th>Price</th><th>Qty</th></tr>`;
-      for (let side in data) {
-        data[side].forEach(order => {
-          html += `<tr><td>${side}</td><td>${order.price}</td><td>${order.qty}</td></tr>`;
-        });
-      }
-      html += '</table>';
-      document.getElementById("orderbook").innerHTML = html;
-    }
-
-    setInterval(loadOrderbook, 3000);
-  </script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/static/script.js"></script>
 </body>
 </html>

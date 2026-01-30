@@ -1,15 +1,28 @@
 import threading
-import time
 import random
-from .orderbook import add_order
+import time
+from app.orderbook import add_order, orderbook
 
-def run_strategy():
-    def simulate():
-        while True:
-            price = round(100 + random.uniform(-1, 1), 2)
-            add_order("buy", price, 10)
-            add_order("sell", price + 0.5, 10)
-            time.sleep(1)
+running = False
 
-    t = threading.Thread(target=simulate, daemon=True)
-    t.start()
+def auto_trader(socketio):
+    global running
+    while running:
+        side = random.choice(["buy", "sell"])
+        price = round(random.uniform(95, 105), 2)
+        qty = random.randint(1, 10)
+
+        add_order(side, price, qty)
+        socketio.emit("orderbook_update", orderbook)
+
+        time.sleep(2)
+
+def start_strategy(socketio):
+    global running
+    if not running:
+        running = True
+        threading.Thread(target=auto_trader, args=(socketio,), daemon=True).start()
+
+def stop_strategy():
+    global running
+    running = False
