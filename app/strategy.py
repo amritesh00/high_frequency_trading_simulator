@@ -1,26 +1,30 @@
 import random
 import time
 import threading
-from .orderbook import add_order, match
+from .orderbook import add_order, match, snapshot
 
-def auto_strategy():
+def auto_strategy(socketio):
     while True:
-        # 1. Generate a price centered around 100 with small noise
-        price = round(100 + random.uniform(-1, 1), 2)
+        # Simulate high frequency: 0.1s to 0.5s intervals
+        price = round(100 + random.uniform(-2, 2), 2)
         
-        # 2. Add the Buy Order (Bid) at the generated price
-        add_order("buy", price, 10)
+        # Randomly decide to buy or sell to create liquidity
+        side = random.choice(["buy", "sell"])
+        if side == "buy":
+            add_order("buy", price, random.randint(1, 50))
+        else:
+            add_order("sell", price + 0.1, random.randint(1, 50))
         
-        # 3. Add the Sell Order (Ask) at a 0.50 markup
-        add_order("sell", price + 0.5, 10)
+        trades = match()
         
-        # 4. Attempt to match orders and wait
-        match()
-        # Note: If you need to emit to SocketIO here, 
-        # ensure 'socketio' is imported or passed in.
+        # Broadcast the update to all users via WebSocket
+        socketio.emit('update', {
+            'book': snapshot(),
+            'trades': trades
+        })
         
-        time.sleep(1)
+        time.sleep(random.uniform(0.1, 0.5))
 
-def start():
-    t = threading.Thread(target=auto_strategy, daemon=True)
+def start(socketio):
+    t = threading.Thread(target=auto_strategy, args=(socketio,), daemon=True)
     t.start()
