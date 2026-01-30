@@ -4,7 +4,7 @@ import redis
 REDIS_URL = os.getenv("REDIS_URL")
 
 if not REDIS_URL:
-    raise RuntimeError("REDIS_URL not set")
+    raise RuntimeError("REDIS_URL is not set")
 
 rdb = redis.Redis.from_url(
     REDIS_URL,
@@ -13,8 +13,7 @@ rdb = redis.Redis.from_url(
 
 def redis_ok():
     try:
-        rdb.ping()
-        return True
+        return rdb.ping()
     except Exception as e:
         print("Redis error:", e)
         return False
