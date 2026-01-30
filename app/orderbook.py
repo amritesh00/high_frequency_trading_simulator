@@ -1,33 +1,36 @@
-from .redis_client import rdb
+from .db import get_db
 import time
 
+def init_db():
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            side TEXT,
+            price REAL,
+            quantity INTEGER,
+            ts REAL
+        )
+    """)
+    db.commit()
+
 def add_order(side, price, qty):
-    order_id = f"{side}:{price}:{qty}:{time.time()}"
-    rdb.zadd(f"orderbook:{side}", {order_id: price})
+    db = get_db()
+    db.execute(
+        "INSERT INTO orders (side, price, quantity, ts) VALUES (?, ?, ?, ?)",
+        (side, price, qty, time.time())
+    )
+    db.commit()
 
 def get_orderbook():
-    book = {"buy": [], "sell": []}
+    db = get_db()
+    rows = db.execute(
+        "SELECT side, price, quantity FROM orders ORDER BY ts DESC LIMIT 50"
+    ).fetchall()
 
-    for side in ["buy", "sell"]:
-        orders = rdb.zrange(f"orderbook:{side}", 0, -1, withscores=True)
-        for order_id, price in orders:
-            _, _, qty, _ = order_id.split(":")
-            book[side].append({
-                "price": price,
-                "qty": int(float(qty))
-            })
-    return book
+    return [dict(row) for row in rows]
 
 def match_orders():
-    buy_orders = rdb.zrevrange("orderbook:buy", 0, 0, withscores=True)
-    sell_orders = rdb.zrange("orderbook:sell", 0, 0, withscores=True)
-
-    if not buy_orders or not sell_orders:
-        return
-
-    buy_id, buy_price = buy_orders[0]
-    sell_id, sell_price = sell_orders[0]
-
-    if buy_price >= sell_price:
-        rdb.zrem("orderbook:buy", buy_id)
-        rdb.zrem("orderbook:sell", sell_id)
+    # Simple demo matching (optional)
+    pass
