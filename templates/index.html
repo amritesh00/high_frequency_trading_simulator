@@ -7,44 +7,47 @@
 <body>
 
 <h1>🚀 High Frequency Trading Simulator</h1>
+<p class="sub">Auto strategy running continuously</p>
 
-<div class="container">
-
-    <div class="book">
-        <h2>BUY ORDERS</h2>
+<div class="books">
+    <div>
+        <h2 class="buy">BUY</h2>
         <ul id="buy"></ul>
     </div>
 
-    <div class="book">
-        <h2>SELL ORDERS</h2>
+    <div>
+        <h2 class="sell">SELL</h2>
         <ul id="sell"></ul>
     </div>
-
 </div>
 
-<h2>📥 Manual Order</h2>
-<select id="side">
-    <option value="buy">Buy</option>
-    <option value="sell">Sell</option>
-</select>
-<input id="price" placeholder="Price">
-<input id="qty" placeholder="Qty">
-<button onclick="sendOrder()">Submit</button>
+<div class="manual">
+    <h3>Manual Order</h3>
+    <select id="side">
+        <option value="buy">BUY</option>
+        <option value="sell">SELL</option>
+    </select>
+    <input id="price" placeholder="Price">
+    <input id="qty" placeholder="Qty">
+    <button onclick="send()">Submit</button>
+</div>
 
 <script>
-function loadBook() {
+function refresh() {
     fetch("/orderbook")
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("buy").innerHTML =
-                data.buy.map(o => `<li>${o.price} × ${o.qty}</li>`).join("");
+        .then(r => r.json())
+        .then(d => {
+            buy.innerHTML = d.buy.map(o =>
+                `<li>${o.price} × ${o.qty}</li>`
+            ).join("");
 
-            document.getElementById("sell").innerHTML =
-                data.sell.map(o => `<li>${o.price} × ${o.qty}</li>`).join("");
+            sell.innerHTML = d.sell.map(o =>
+                `<li>${o.price} × ${o.qty}</li>`
+            ).join("");
         });
 }
 
-function sendOrder() {
+function send() {
     fetch("/order", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -56,7 +59,8 @@ function sendOrder() {
     });
 }
 
-setInterval(loadBook, 1000);
+setInterval(refresh, 1000);
+refresh();
 </script>
 
 </body>

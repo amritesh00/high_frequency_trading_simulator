@@ -1,35 +1,42 @@
 body {
-  font-family: Arial;
-  background: #0f172a;
-  color: #e5e7eb;
-  text-align: center;
-}
-
-.container {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-}
-
-.book {
   background: #020617;
-  padding: 20px;
-  border-radius: 10px;
-  width: 250px;
+  color: #e5e7eb;
+  font-family: Arial;
+  text-align: center;
 }
 
 h1 {
   color: #38bdf8;
 }
 
-li {
+.sub {
+  color: #94a3b8;
+}
+
+.books {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+
+ul {
   list-style: none;
-  padding: 5px;
+  padding: 0;
+}
+
+li {
+  padding: 6px;
   border-bottom: 1px solid #1e293b;
 }
 
-button {
-  padding: 8px 16px;
-  margin-top: 10px;
-  cursor: pointer;
+.buy { color: #22c55e; }
+.sell { color: #ef4444; }
+
+.manual {
+  margin-top: 30px;
+}
+
+input, select, button {
+  padding: 8px;
+  margin: 5px;
 }
