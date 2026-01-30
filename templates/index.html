@@ -1,32 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>HFT Simulator</title>
-  <link rel="stylesheet" href="/static/styles.css">
+    <title>HFT Simulator</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 
-<h1>📈 High-Frequency Trading Simulator</h1>
+<h1>🚀 High Frequency Trading Simulator</h1>
 
-<div class="controls">
-  <button onclick="startStrategy()">▶ Start Strategy</button>
-  <button onclick="stopStrategy()">⏹ Stop Strategy</button>
+<div class="container">
+
+    <div class="book">
+        <h2>BUY ORDERS</h2>
+        <ul id="buy"></ul>
+    </div>
+
+    <div class="book">
+        <h2>SELL ORDERS</h2>
+        <ul id="sell"></ul>
+    </div>
+
 </div>
 
-<h2>Live Orderbook</h2>
+<h2>📥 Manual Order</h2>
+<select id="side">
+    <option value="buy">Buy</option>
+    <option value="sell">Sell</option>
+</select>
+<input id="price" placeholder="Price">
+<input id="qty" placeholder="Qty">
+<button onclick="sendOrder()">Submit</button>
 
-<table>
-  <thead>
-    <tr>
-      <th>Side</th>
-      <th>Price</th>
-      <th>Quantity</th>
-    </tr>
-  </thead>
-  <tbody id="orders"></tbody>
-</table>
+<script>
+function loadBook() {
+    fetch("/orderbook")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("buy").innerHTML =
+                data.buy.map(o => `<li>${o.price} × ${o.qty}</li>`).join("");
 
-<script src="/static/script.js"></script>
+            document.getElementById("sell").innerHTML =
+                data.sell.map(o => `<li>${o.price} × ${o.qty}</li>`).join("");
+        });
+}
+
+function sendOrder() {
+    fetch("/order", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            side: side.value,
+            price: price.value,
+            qty: qty.value
+        })
+    });
+}
+
+setInterval(loadBook, 1000);
+</script>
+
 </body>
 </html>

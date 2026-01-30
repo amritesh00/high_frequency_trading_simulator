@@ -1,12 +1,15 @@
 from flask import Flask, render_template, jsonify, request
-from app.orderbook import get_orderbook, add_order
-from app.strategy import start_strategy, stop_strategy
+from app.orderbook import add_order, match_orders, get_orderbook
+from app.strategy import start_auto_strategy
 import os
 
 app = Flask(__name__)
 
+# 🔥 Start strategy automatically
+start_auto_strategy()
+
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
 @app.route("/orderbook")
@@ -16,25 +19,9 @@ def orderbook():
 @app.route("/order", methods=["POST"])
 def place_order():
     data = request.json
-    add_order(data["side"], data["price"], data["qty"])
-    return jsonify({"status": "order placed"})
-
-@app.route("/start_strategy")
-def start():
-    start_strategy()
-    return jsonify({"status": "Auto strategy started"})
-
-@app.route("/stop_strategy")
-def stop():
-    stop_strategy()
-    return jsonify({"status": "Auto strategy stopped"})
-
-@app.route("/health")
-def health():
-    return jsonify({
-        "status": "HFT Simulator is LIVE 🚀",
-        "routes": ["/", "/orderbook", "/start_strategy", "/stop_strategy"]
-    })
+    add_order(data["side"], float(data["price"]), int(data["qty"]))
+    match_orders()
+    return {"status": "order placed"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))

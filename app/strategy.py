@@ -1,28 +1,18 @@
 import threading
-import time
 import random
-from .orderbook import add_order
+import time
+from .orderbook import add_order, match_orders
 
-running = False
-thread = None
+def start_auto_strategy():
+    def run():
+        while True:
+            price = round(100 + random.uniform(-2, 2), 2)
 
-def strategy_loop():
-    global running
-    while running:
-        price = 100 + random.uniform(-1, 1)
-        add_order("buy", price, 10)
-        add_order("sell", price + 0.5, 10)
-        time.sleep(1)
+            add_order("buy", price, random.randint(1, 5))
+            add_order("sell", price + random.uniform(0.2, 0.6), random.randint(1, 5))
 
-def start_strategy():
-    global running, thread
-    if running:
-        return
-    running = True
-    thread = threading.Thread(target=strategy_loop)
-    thread.daemon = True
+            match_orders()
+            time.sleep(1)
+
+    thread = threading.Thread(target=run, daemon=True)
     thread.start()
-
-def stop_strategy():
-    global running
-    running = False
