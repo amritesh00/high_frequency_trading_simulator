@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-# 🚀 Start HFT strategy automatically
+# 🚀 Auto-start strategy
 start_strategy()
 
 @app.route("/")
@@ -20,8 +20,8 @@ def orderbook():
 def manual_order():
     data = request.json
     add_order(data["side"], float(data["price"]), int(data["qty"]))
-    match_orders()
-    return {"status": "order placed"}
+    match_orders(max_matches=5)
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))

@@ -6,17 +6,17 @@
 </head>
 <body>
 
-<h1> High-Frequency Trading Simulator</h1>
-
+<h1>🚀 High-Frequency Trading Simulator</h1>
+<p class="sub">Live liquidity • Partial fills • Real depth</p>
 
 <div class="grid">
     <div>
-        <h2 class="buy">BUY</h2>
+        <h2 class="buy">BUY DEPTH</h2>
         <ul id="buy"></ul>
     </div>
 
     <div>
-        <h2 class="sell">SELL</h2>
+        <h2 class="sell">SELL DEPTH</h2>
         <ul id="sell"></ul>
     </div>
 
@@ -68,7 +68,7 @@ function send() {
     });
 }
 
-setInterval(refresh, 1000);
+setInterval(refresh, 500);  // 🔥 faster refresh
 refresh();
 </script>
 
