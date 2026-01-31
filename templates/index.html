@@ -1,23 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HFT Trading Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0b0e11;
+            color: #eaecef;
+            padding: 20px;
+        }
+        h1 {
+            color: #f0b90b;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        .box {
+            background: #161a1e;
+            padding: 15px;
+            border-radius: 8px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .buy { color: #0ecb81; }
+        .sell { color: #f6465d; }
+        .trade { color: #f0b90b; }
+        input, button {
+            padding: 6px;
+            margin: 4px 0;
+            width: 100%;
+        }
+        button {
+            background: #f0b90b;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🚀 High Frequency Trading Simulator</h1>
+
+<div class="grid">
+    <div class="box">
+        <h3 class="buy">BUY ORDERS</h3>
+        <ul id="buy"></ul>
+    </div>
+
+    <div class="box">
+        <h3 class="sell">SELL ORDERS</h3>
+        <ul id="sell"></ul>
+    </div>
+
+    <div class="box">
+        <h3 class="trade">TRADES</h3>
+        <ul id="trades"></ul>
+    </div>
+</div>
+
+<h2>Manual Order</h2>
+<input id="price" placeholder="Price" type="number" step="0.01">
+<input id="qty" placeholder="Quantity" type="number">
+<button onclick="sendOrder('buy')">BUY</button>
+<button onclick="sendOrder('sell')">SELL</button>
+
 <script>
-    function refresh() {
-        fetch("/orderbook?_=" + Date.now())  // 🔥 prevent caching
-            .then(r => r.json())
-            .then(d => {
-                buy.innerHTML = d.buy.map(o =>
-                    `<li>${o.price} × ${o.qty}</li>`
-                ).join("");
-    
-                sell.innerHTML = d.sell.map(o =>
-                    `<li>${o.price} × ${o.qty}</li>`
-                ).join("");
-    
-                trades.innerHTML = d.trades.map(t =>
-                    `<li>${new Date(t.time*1000).toLocaleTimeString()} | ${t.price} × ${t.qty}</li>`
-                ).join("");
-            });
-    }
-    
-    setInterval(refresh, 500);
-    refresh();
-    </script>
-    
+const buyEl = document.getElementById("buy");
+const sellEl = document.getElementById("sell");
+const tradesEl = document.getElementById("trades");
+
+function refresh() {
+    fetch("/orderbook?_=" + Date.now())  // disable cache
+        .then(res => res.json())
+        .then(data => {
+            buyEl.innerHTML = data.buy
+                .slice(0, 20)
+                .map(o => `<li>${o.price} × ${o.qty}</li>`)
+                .join("");
+
+            sellEl.innerHTML = data.sell
+                .slice(0, 20)
+                .map(o => `<li>${o.price} × ${o.qty}</li>`)
+                .join("");
+
+            tradesEl.innerHTML = data.trades
+                .slice(0, 20)
+                .map(t =>
+                    `<li>${new Date(t.time * 1000).toLocaleTimeString()} | ${t.price} × ${t.qty}</li>`
+                )
+                .join("");
+        });
+}
+
+function sendOrder(side) {
+    fetch("/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            side: side,
+            price: document.getElementById("price").value,
+            qty: document.getElementById("qty").value
+        })
+    });
+}
+
+setInterval(refresh, 500);
+refresh();
+</script>
+
+</body>
+</html>
