@@ -5,8 +5,10 @@ import os
 
 app = Flask(__name__)
 
-# 🚀 Auto-start strategy
-start_strategy()
+# 🔒 Prevent double strategy start
+if not hasattr(app, "strategy_started"):
+    start_strategy()
+    app.strategy_started = True
 
 @app.route("/")
 def home():

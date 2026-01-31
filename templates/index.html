@@ -1,76 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>HFT Simulator</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-
-<h1>🚀 High-Frequency Trading Simulator</h1>
-<p class="sub">Live liquidity • Partial fills • Real depth</p>
-
-<div class="grid">
-    <div>
-        <h2 class="buy">BUY DEPTH</h2>
-        <ul id="buy"></ul>
-    </div>
-
-    <div>
-        <h2 class="sell">SELL DEPTH</h2>
-        <ul id="sell"></ul>
-    </div>
-
-    <div>
-        <h2 class="trade">TRADES</h2>
-        <ul id="trades"></ul>
-    </div>
-</div>
-
-<div class="manual">
-    <h3>Manual Order</h3>
-    <select id="side">
-        <option value="buy">BUY</option>
-        <option value="sell">SELL</option>
-    </select>
-    <input id="price" placeholder="Price">
-    <input id="qty" placeholder="Qty">
-    <button onclick="send()">Submit</button>
-</div>
-
 <script>
-function refresh() {
-    fetch("/orderbook")
-        .then(r => r.json())
-        .then(d => {
-            buy.innerHTML = d.buy.map(o =>
-                `<li>${o.price} × ${o.qty}</li>`
-            ).join("");
-
-            sell.innerHTML = d.sell.map(o =>
-                `<li>${o.price} × ${o.qty}</li>`
-            ).join("");
-
-            trades.innerHTML = d.trades.map(t =>
-                `<li>${t.price} × ${t.qty}</li>`
-            ).join("");
-        });
-}
-
-function send() {
-    fetch("/order", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            side: side.value,
-            price: price.value,
-            qty: qty.value
-        })
-    });
-}
-
-setInterval(refresh, 500);  // 🔥 faster refresh
-refresh();
-</script>
-
-</body>
-</html>
+    function refresh() {
+        fetch("/orderbook?_=" + Date.now())  // 🔥 prevent caching
+            .then(r => r.json())
+            .then(d => {
+                buy.innerHTML = d.buy.map(o =>
+                    `<li>${o.price} × ${o.qty}</li>`
+                ).join("");
+    
+                sell.innerHTML = d.sell.map(o =>
+                    `<li>${o.price} × ${o.qty}</li>`
+                ).join("");
+    
+                trades.innerHTML = d.trades.map(t =>
+                    `<li>${new Date(t.time*1000).toLocaleTimeString()} | ${t.price} × ${t.qty}</li>`
+                ).join("");
+            });
+    }
+    
+    setInterval(refresh, 500);
+    refresh();
+    </script>
+    
