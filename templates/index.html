@@ -1,76 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>HFT Pro Simulator</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <title>HFT Simulator</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 
-<h1>HFT Real-Time Engine</h1>
+<h1> High-Frequency Trading Simulator</h1>
 
-<div class="container">
-    <div class="books">
-        <div>
-            <h2 class="buy">BIDS (BUY)</h2>
-            <ul id="buy"></ul>
-        </div>
-        <div>
-            <h2 class="sell">ASKS (SELL)</h2>
-            <ul id="sell"></ul>
-        </div>
+
+<div class="grid">
+    <div>
+        <h2 class="buy">BUY</h2>
+        <ul id="buy"></ul>
     </div>
 
-    <div class="trades-panel">
-        <h2>RECENT TRADES</h2>
+    <div>
+        <h2 class="sell">SELL</h2>
+        <ul id="sell"></ul>
+    </div>
+
+    <div>
+        <h2 class="trade">TRADES</h2>
         <ul id="trades"></ul>
     </div>
 </div>
 
 <div class="manual">
+    <h3>Manual Order</h3>
     <select id="side">
         <option value="buy">BUY</option>
         <option value="sell">SELL</option>
     </select>
-    <input id="price" type="number" step="0.01" placeholder="Price">
-    <input id="qty" type="number" placeholder="Qty">
-    <button onclick="send()">Place Order</button>
+    <input id="price" placeholder="Price">
+    <input id="qty" placeholder="Qty">
+    <button onclick="send()">Submit</button>
 </div>
 
 <script>
-    const socket = io();
-    const tradeList = [];
-
-    socket.on('update', (data) => {
-        // Update Orderbook
-        document.getElementById('buy').innerHTML = data.book.buy.map(o =>
-            `<li><span class="price">${o.price.toFixed(2)}</span> x ${o.qty}</li>`
-        ).join("");
-
-        document.getElementById('sell').innerHTML = data.book.sell.map(o =>
-            `<li><span class="price">${o.price.toFixed(2)}</span> x ${o.qty}</li>`
-        ).join("");
-
-        // Update Trades (Keep last 10)
-        if (data.trades && data.trades.length > 0) {
-            data.trades.forEach(t => {
-                tradeList.unshift(t);
-                if (tradeList.length > 10) tradeList.pop();
-            });
-            
-            document.getElementById('trades').innerHTML = tradeList.map(t =>
-                `<li class="trade-item">Trade: ${t.price.toFixed(2)} @ ${t.qty} units</li>`
+function refresh() {
+    fetch("/orderbook")
+        .then(r => r.json())
+        .then(d => {
+            buy.innerHTML = d.buy.map(o =>
+                `<li>${o.price} × ${o.qty}</li>`
             ).join("");
-        }
-    });
 
-    function send() {
-        socket.emit('manual_order', {
-            side: document.getElementById('side').value,
-            price: parseFloat(document.getElementById('price').value),
-            qty: parseInt(document.getElementById('qty').value)
+            sell.innerHTML = d.sell.map(o =>
+                `<li>${o.price} × ${o.qty}</li>`
+            ).join("");
+
+            trades.innerHTML = d.trades.map(t =>
+                `<li>${t.price} × ${t.qty}</li>`
+            ).join("");
         });
-    }
+}
+
+function send() {
+    fetch("/order", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            side: side.value,
+            price: price.value,
+            qty: qty.value
+        })
+    });
+}
+
+setInterval(refresh, 1000);
+refresh();
 </script>
+
 </body>
 </html>

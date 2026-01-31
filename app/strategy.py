@@ -1,30 +1,20 @@
 import random
 import time
 import threading
-from .orderbook import add_order, match, snapshot
+from .orderbook import add_order, match_orders
 
-def auto_strategy(socketio):
+def hft_strategy():
     while True:
-        # Simulate high frequency: 0.1s to 0.5s intervals
-        price = round(100 + random.uniform(-2, 2), 2)
-        
-        # Randomly decide to buy or sell to create liquidity
-        side = random.choice(["buy", "sell"])
-        if side == "buy":
-            add_order("buy", price, random.randint(1, 50))
-        else:
-            add_order("sell", price + 0.1, random.randint(1, 50))
-        
-        trades = match()
-        
-        # Broadcast the update to all users via WebSocket
-        socketio.emit('update', {
-            'book': snapshot(),
-            'trades': trades
-        })
-        
-        time.sleep(random.uniform(0.1, 0.5))
+        for _ in range(10):  # 🔥 10 transactions/sec
+            base_price = round(100 + random.uniform(-1, 1), 2)
 
-def start(socketio):
-    t = threading.Thread(target=auto_strategy, args=(socketio,), daemon=True)
+            add_order("buy", base_price, 10)
+            add_order("sell", base_price + 0.5, 10)
+
+            match_orders()
+
+        time.sleep(1)
+
+def start_strategy():
+    t = threading.Thread(target=hft_strategy, daemon=True)
     t.start()

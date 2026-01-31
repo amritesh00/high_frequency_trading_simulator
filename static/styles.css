@@ -5,18 +5,14 @@ body {
   text-align: center;
 }
 
-h1 {
-  color: #38bdf8;
-}
+h1 { color: #38bdf8; }
 
-.sub {
-  color: #94a3b8;
-}
+.sub { color: #94a3b8; }
 
-.books {
+.grid {
   display: flex;
   justify-content: center;
-  gap: 50px;
+  gap: 40px;
 }
 
 ul {
@@ -31,6 +27,7 @@ li {
 
 .buy { color: #22c55e; }
 .sell { color: #ef4444; }
+.trade { color: #facc15; }
 
 .manual {
   margin-top: 30px;
